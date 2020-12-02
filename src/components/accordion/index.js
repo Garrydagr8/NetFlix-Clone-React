@@ -1,0 +1,85 @@
+import React, {createContext, useState, useContext} from 'react';
+import { Container, Frame, Title, Item, Inner, Header, Body } from './styles/accordion';
+// context set for header on click function
+
+const ToggleContext = createContext();
+
+
+
+export default function Accordion({ children, ...restProps }){
+    return(
+        <Container { ...restProps}>
+            <Inner>{children}</Inner>
+        </Container>
+    );
+}
+
+Accordion.Title = function AccordionTitle({children, ...restProps}){
+    return(
+        <Title {...restProps}>
+            {children}
+        </Title>
+    );
+}
+
+Accordion.Frame = function AccordionFrame({children, ...restProps}){
+    return(
+        <Frame {...restProps}>
+            {children}
+        </Frame>
+    );
+}
+
+Accordion.Item = function AccordionItem({children, ...restProps}){
+    
+    const [toggleShow, setToggleShow] = useState(false);
+    
+    return(
+        //context provider
+        <ToggleContext.Provider value={{ toggleShow, setToggleShow }}>
+            <Item {...restProps}>
+                {children}
+            </Item>
+        </ToggleContext.Provider>
+    );
+}
+
+Accordion.Header = function AccordionHeader({children, ...restProps}){
+    
+    const { toggleShow, setToggleShow } = useContext(ToggleContext);
+    
+    return(
+        <Header onClick={() => setToggleShow(
+                        (toggleShow)=> !toggleShow)
+                        } 
+                        {...restProps}
+        >
+            {children}
+            {/* debugging for displaying state change on accordion
+             <pre>
+                {JSON.stringify(toggleShow, null, 2)}
+            </pre> 
+            */}
+            {toggleShow ? (
+                <img src="/images/icons/close-slim.png"
+                alt="Close" />
+            ):(
+                <img src="/images/icons/add.png"
+                alt="Open" />
+            )}
+        </Header>
+    );
+}
+
+Accordion.Body = function AccordionBody({children, ...restProps}){
+    
+    const { toggleShow } = useContext(ToggleContext);
+    // return body if uer clicks on item else minimize the accordion item.(null)
+    return(
+        toggleShow ?
+        <Body {...restProps}>
+            {children}
+        </Body> 
+        : null
+    );
+}
